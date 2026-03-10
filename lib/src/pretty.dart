@@ -1,5 +1,4 @@
 import 'encode.dart';
-import 'schema.dart';
 
 const _kMaxWidth = 100;
 

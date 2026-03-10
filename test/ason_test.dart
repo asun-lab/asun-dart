@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:ason/ason.dart';
 
@@ -97,9 +96,6 @@ void main() {
     });
 
     test('float formatting', () {
-      final buf = StringBuffer();
-      // Use the public API to test float encoding
-      final m = <String, dynamic>{'v': 95.5};
       // Encode a map-like value
       final result = encode([_FloatStruct(v: 95.5)]);
       expect(result.contains('95.5'), true);

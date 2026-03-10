@@ -390,9 +390,6 @@ class _Decoder {
     return _parsePlainValue();
   }
 
-  // Legacy entry point
-  dynamic _parseAnyValue() => _parseValueFast();
-
   bool _isDelimiter(int c) =>
       c == 0x2C ||
       c == 0x29 ||

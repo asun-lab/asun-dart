@@ -321,13 +321,6 @@ class _BinaryReader {
     return _data[_pos++];
   }
 
-  int _readU16() {
-    _ensure(2);
-    final v = _view.getUint16(_pos, Endian.little);
-    _pos += 2;
-    return v;
-  }
-
   int _readU32() {
     _ensure(4);
     final v = _view.getUint32(_pos, Endian.little);
@@ -364,7 +357,7 @@ class _BinaryReader {
   /// Read a struct given field names — returns Map.
   Map<String, dynamic> _readStruct(List<String> fields) {
     final map = <String, dynamic>{};
-    for (final name in fields) {
+    for (final _ in fields) {
       // Without type info, we can't know what to read
       throw AsonError(
           'binary struct decode requires type info; use decodeBinaryWith');
