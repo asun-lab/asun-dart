@@ -51,6 +51,52 @@ class Employee implements AsonSchema {
   @override int get hashCode => Object.hash(name, dept);
 }
 
+class MatrixPart {
+  final int id;
+  final double score;
+  MatrixPart({required this.id, required this.score});
+
+  factory MatrixPart.fromMap(Map<String, dynamic> m) =>
+      MatrixPart(id: m['id'] as int, score: (m['score'] as num).toDouble());
+}
+
+class MatrixNoOverlap {
+  final int foo;
+  final String? bar;
+  MatrixNoOverlap({required this.foo, required this.bar});
+
+  factory MatrixNoOverlap.fromMap(Map<String, dynamic> m) => MatrixNoOverlap(
+    foo: (m['foo'] as num?)?.toInt() ?? 0,
+    bar: m['bar'] as String?,
+  );
+}
+
+class MatrixNestedOptional {
+  final String name;
+  final String? nick;
+  MatrixNestedOptional({required this.name, required this.nick});
+
+  factory MatrixNestedOptional.fromMap(Map<String, dynamic> m) =>
+      MatrixNestedOptional(name: m['name'] as String, nick: m['nick'] as String?);
+}
+
+class MatrixUserNestedOptional {
+  final int id;
+  final MatrixNestedOptional profile;
+  MatrixUserNestedOptional({required this.id, required this.profile});
+
+  factory MatrixUserNestedOptional.fromMap(Map<String, dynamic> m) {
+    final p = m['profile'];
+    final profile = p is Map<String, dynamic>
+        ? MatrixNestedOptional.fromMap(p)
+        : MatrixNestedOptional(
+            name: (p as List).isNotEmpty ? p[0] as String : '',
+            nick: p.length > 1 ? p[1] as String? : null,
+          );
+    return MatrixUserNestedOptional(id: m['id'] as int, profile: profile);
+  }
+}
+
 void main() {
   group('Encode', () {
     test('single struct unannotated', () {
@@ -195,6 +241,64 @@ void main() {
         User.fromMap,
       );
       expect(users.length, 2);
+    });
+
+    test('matrix P1 typed partial overlap', () {
+      final dst = decodeWith(
+        '{id:int,name:str,score:float,active:bool}:(42,Alice,9.5,true)',
+        MatrixPart.fromMap,
+      );
+      expect(dst.id, 42);
+      expect(dst.score, 9.5);
+    });
+
+    test('matrix P1 untyped partial overlap', () {
+      final dst = decodeWith(
+        '{id,name,score,active}:(42,Alice,9.5,true)',
+        MatrixPart.fromMap,
+      );
+      expect(dst.id, 42);
+      expect(dst.score, 9.5);
+    });
+
+    test('matrix P2 typed no overlap defaults', () {
+      final dst = decodeWith(
+        '{id:int,name:str}:(42,Alice)',
+        MatrixNoOverlap.fromMap,
+      );
+      expect(dst.foo, 0);
+      expect(dst.bar, null);
+    });
+
+    test('matrix P2 untyped no overlap defaults', () {
+      final dst = decodeWith(
+        '{id,name}:(42,Alice)',
+        MatrixNoOverlap.fromMap,
+      );
+      expect(dst.foo, 0);
+      expect(dst.bar, null);
+    });
+
+    test('matrix N4 typed nested optional subset', () {
+      final dst = decodeListWith(
+        '[{id:int,profile:{name:str,nick:str?,score:float?},active:bool}]:(1,(Alice,ally,9.5),true),(2,(Bob,,),false)',
+        MatrixUserNestedOptional.fromMap,
+      );
+      expect(dst.length, 2);
+      expect(dst[0].profile.name, 'Alice');
+      expect(dst[0].profile.nick, 'ally');
+      expect(dst[1].profile.name, 'Bob');
+      expect(dst[1].profile.nick, null);
+    });
+
+    test('matrix N4 untyped nested optional subset', () {
+      final dst = decodeListWith(
+        '[{id,profile:{name,nick,score},active}]:(1,(Alice,ally,9.5),true),(2,(Bob,,),false)',
+        MatrixUserNestedOptional.fromMap,
+      );
+      expect(dst.length, 2);
+      expect(dst[0].profile.nick, 'ally');
+      expect(dst[1].profile.nick, null);
     });
   });
 
