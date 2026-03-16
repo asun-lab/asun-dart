@@ -35,7 +35,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  ason: ^0.1.0
+  ason: ^1.0.0
 ```
 
 ### Serialize & Deserialize a Struct

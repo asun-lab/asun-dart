@@ -35,7 +35,7 @@ ASON (~35 tokens, 节省 65%):
 
 ```yaml
 dependencies:
-  ason: ^0.1.0
+  ason: ^1.0.0
 ```
 
 ### 序列化与反序列化结构体
