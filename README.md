@@ -72,15 +72,15 @@ void main() {
 }
 ```
 
-### Serialize with Type Annotations
+### Serialize with Scalar Hints
 
-Use `encodeTyped` to output a type-annotated schema — useful for documentation, LLM prompts, and cross-language exchange:
+Use `encodeTyped` to output a schema binding with scalar hints — useful for documentation, LLM prompts, and cross-language exchange:
 
 ```dart
 final s = encodeTyped(user);
 // Output: {id@int,name@str,active@bool}:(1,Alice,true)
 
-// Deserializer accepts both annotated and unannotated schemas
+// Deserializer accepts both forms
 final user2 = decodeWith(s, User.fromFields);
 ```
 
@@ -94,11 +94,11 @@ final users = [
   User(id: 2, name: 'Bob', active: false),
 ];
 
-// Unannotated schema
+// Schema binding without scalar hints
 final s = encode(users);
 // Output: [{id,name,active}]:(1,Alice,true),(2,Bob,false)
 
-// Type-annotated schema
+// Schema binding with scalar hints
 final s2 = encodeTyped(users);
 // Output: [{id@int,name@str,active@bool}]:(1,Alice,true),(2,Bob,false)
 
@@ -159,25 +159,25 @@ class Employee implements AsonSchema {
 // Keyed entries: {name,attrs@[{key@str,value@int}]}:(Alice,[(age,30),(score,95)])
 ```
 
-### Type Annotations (Optional)
+### `@` Field Binding and Optional Scalar Hints
 
-ASON schema supports **optional** type annotations. Both forms are fully equivalent — the deserializer handles them identically:
+In ASON schema, `@` is the **field binding marker** between a field name and its following schema/type description. Scalar hints are optional:
 
 ```text
 // Without annotations (default output of encode)
 {id,name,salary,active}:(1,Alice,5000.50,true)
 
-// With annotations (output of encodeTyped)
+// With scalar hints (output of encodeTyped)
 {id@int,name@str,salary@float,active@bool}:(1,Alice,5000.50,true)
 ```
 
-Annotations are **purely decorative metadata** — they do not affect parsing or deserialization behavior.
+For scalar fields, `@int`, `@str`, `@float`, and `@bool` are optional hints. For complex fields, `@{...}` and `@[...]` are required structural bindings and must not be omitted.
 
-**When to use annotations:**
+**When to use scalar hints:**
 
 - LLM prompts — helps models understand and generate correct data
 - API documentation — self-describing schema without external docs
-- Cross-language exchange — eliminates type ambiguity (is `42` an `int` or `float`?)
+- Cross-language exchange — reduces type ambiguity (is `42` an `int` or `float`?)
 - Debugging — see data types at a glance
 
 ### Comments
@@ -202,8 +202,8 @@ Annotations are **purely decorative metadata** — they do not affect parsing or
 
 | Function                    | Description                                                  |
 | --------------------------- | ------------------------------------------------------------ |
-| `encode(value)`             | Serialize → unannotated schema `{id,name}:`                  |
-| `encodeTyped(value)`        | Serialize → annotated schema `{id@int,name@str}:`            |
+| `encode(value)`             | Serialize → schema binding without scalar hints `{id,name}:` |
+| `encodeTyped(value)`        | Serialize → schema binding with scalar hints `{id@int,name@str}:` |
 | `decode(input)`             | Deserialize to dynamic field bag / List                      |
 | `decodeWith(input, factory)` | Deserialize to typed object using factory                    |
 | `decodeListWith(input, factory)` | Deserialize to typed list using factory                 |
@@ -212,8 +212,8 @@ Annotations are **purely decorative metadata** — they do not affect parsing or
 
 | Function                     | Description                                   |
 | ---------------------------- | --------------------------------------------- |
-| `encodePretty(value)`        | Pretty-formatted ASON (unannotated)           |
-| `encodePrettyTyped(value)`   | Pretty-formatted ASON (annotated)             |
+| `encodePretty(value)`        | Pretty-formatted ASON (without scalar hints)  |
+| `encodePrettyTyped(value)`   | Pretty-formatted ASON (with scalar hints)     |
 
 ### Binary Format
 
