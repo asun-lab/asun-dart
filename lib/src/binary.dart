@@ -6,7 +6,7 @@ import 'schema.dart';
 // Public API
 // ============================================================================
 
-/// Encode a value to ASON binary format.
+/// Encode a value to ASUN binary format.
 ///
 /// Wire format (all integers little-endian):
 /// - bool: 1 byte (0x00=false, 0x01=true)
@@ -16,14 +16,14 @@ import 'schema.dart';
 /// - null (Option None): u8 tag 0
 /// - Some(T): u8 tag 1 + T payload
 /// - List<T>: u32 LE count + elements
-/// - struct (AsonSchema): fields in declaration order
+/// - struct (AsunSchema): fields in declaration order
 Uint8List encodeBinary(dynamic value) {
   final w = _BinaryWriter(256);
   _writeBinaryValue(w, value);
   return w.toBytes();
 }
 
-/// Decode ASON binary bytes into structured Dart value.
+/// Decode ASUN binary bytes into structured Dart value.
 ///
 /// Returns Map<String, dynamic> for structs, List for arrays, etc.
 /// Use [decodeBinaryWith] for typed decoding.
@@ -35,10 +35,10 @@ dynamic decodeBinary(Uint8List data, {List<String>? fields}) {
     return r._readStruct(fields);
   }
   // Without schema info, we can't decode binary (not self-describing)
-  throw AsonError('ASON binary format is not self-describing; provide fields');
+  throw AsunError('ASUN binary format is not self-describing; provide fields');
 }
 
-/// Decode ASON binary into typed object using factory.
+/// Decode ASUN binary into typed object using factory.
 T decodeBinaryWith<T>(
   Uint8List data,
   List<String> fields,
@@ -53,7 +53,7 @@ T decodeBinaryWith<T>(
   return factory(map);
 }
 
-/// Decode a list of structs from ASON binary.
+/// Decode a list of structs from ASUN binary.
 List<T> decodeBinaryListWith<T>(
   Uint8List data,
   List<String> fields,
@@ -260,7 +260,7 @@ void _writeBinaryValue(_BinaryWriter w, dynamic v) {
     w.writeString(v);
     return;
   }
-  if (v is AsonSchema) {
+  if (v is AsunSchema) {
     // Struct: write fields in order, no length prefix
     final values = v.fieldValues;
     for (final fv in values) {
@@ -269,11 +269,11 @@ void _writeBinaryValue(_BinaryWriter w, dynamic v) {
     return;
   }
   if (v is List) {
-    if (v.isNotEmpty && v.first is AsonSchema) {
+    if (v.isNotEmpty && v.first is AsunSchema) {
       // Vec<Struct>: u32 count + each struct
       w.writeU32(v.length);
       for (final item in v) {
-        final obj = item as AsonSchema;
+        final obj = item as AsunSchema;
         final values = obj.fieldValues;
         for (final fv in values) {
           _writeBinaryValue(w, fv);
@@ -288,7 +288,7 @@ void _writeBinaryValue(_BinaryWriter w, dynamic v) {
     }
     return;
   }
-  if (v is Map) throw AsonError.unsupportedMap;
+  if (v is Map) throw AsunError.unsupportedMap;
   // Fallback: write as string
   w.writeString(v.toString());
 }
@@ -305,7 +305,7 @@ class _BinaryReader {
   _BinaryReader(this._data) : _view = ByteData.sublistView(_data);
 
   void _ensure(int n) {
-    if (_pos + n > _data.length) throw AsonError.eof;
+    if (_pos + n > _data.length) throw AsunError.eof;
   }
 
   int _readU8() {
@@ -352,7 +352,7 @@ class _BinaryReader {
     final map = <String, dynamic>{};
     for (final _ in fields) {
       // Without type info, we can't know what to read
-      throw AsonError(
+      throw AsunError(
           'binary struct decode requires type info; use decodeBinaryWith');
     }
     return map;

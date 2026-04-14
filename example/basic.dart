@@ -1,10 +1,10 @@
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
 // ---------------------------------------------------------------------------
-// Data classes with AsonSchema
+// Data classes with AsunSchema
 // ---------------------------------------------------------------------------
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final bool active;
@@ -41,14 +41,14 @@ class User implements AsonSchema {
 }
 
 void main() {
-  print('=== ASON Dart Basic Examples ===\n');
+  print('=== ASUN Dart Basic Examples ===\n');
 
   // 1. Serialize a single struct
   final user = User(id: 1, name: 'Alice', active: true);
-  final asonStr = encode(user);
+  final asunStr = encode(user);
   print('1. Serialize single struct:');
-  print('   $asonStr\n');
-  assert(asonStr == '{id,name,active}:(1,Alice,true)');
+  print('   $asunStr\n');
+  assert(asunStr == '{id,name,active}:(1,Alice,true)');
 
   // 2. Serialize with type annotations (encodeTyped)
   final typedStr = encodeTyped(user);
@@ -56,7 +56,7 @@ void main() {
   print('   $typedStr\n');
   assert(typedStr == '{id@int,name@str,active@bool}:(1,Alice,true)');
 
-  // 3. Deserialize from ASON (accepts both annotated and unannotated)
+  // 3. Deserialize from ASUN (accepts both annotated and unannotated)
   final input = '{id@int,name@str,active@bool}:(1,Alice,true)';
   final decoded = decodeWith(input, User.fromFields);
   print('3. Deserialize single struct:');
@@ -71,9 +71,9 @@ void main() {
     User(id: 2, name: 'Bob', active: false),
     User(id: 3, name: 'Carol Smith', active: true),
   ];
-  final asonVec = encode(users);
+  final asunVec = encode(users);
   print('4. Serialize vec (schema-driven):');
-  print('   $asonVec\n');
+  print('   $asunVec\n');
 
   // 5. Serialize vec with type annotations
   final typedVec = encodeTyped(users);
@@ -101,17 +101,17 @@ void main() {
     print('   $u');
   }
 
-  // 8. Roundtrip (ASON-text + ASON-bin + JSON)
-  print('\n8. Roundtrip (ASON text vs ASON binary):');
+  // 8. Roundtrip (ASUN-text + ASUN-bin + JSON)
+  print('\n8. Roundtrip (ASUN text vs ASUN binary):');
   final original = User(id: 42, name: 'Test User', active: true);
-  final asonText = encode(original);
-  final fromAson = decodeWith(asonText, User.fromFields);
-  assert(original == fromAson);
+  final asunText = encode(original);
+  final fromAsun = decodeWith(asunText, User.fromFields);
+  assert(original == fromAsun);
 
-  // ASON binary
-  final asonBin = encodeBinary(original);
+  // ASUN binary
+  final asunBin = encodeBinary(original);
   final fromBin = decodeBinaryWith(
-    asonBin,
+    asunBin,
     ['id', 'name', 'active'],
     [FieldType.int_, FieldType.string_, FieldType.bool_],
     User.fromFields,
@@ -119,15 +119,15 @@ void main() {
   assert(original == fromBin);
 
   print('   original:     $original');
-  print('   ASON text:    $asonText (${asonText.length} B)');
-  print('   ASON binary:  ${asonBin.length} B');
+  print('   ASUN text:    $asunText (${asunText.length} B)');
+  print('   ASUN binary:  ${asunBin.length} B');
   print('   ✓ all formats roundtrip OK');
 
-  // 9. Vec roundtrip (ASON-text + ASON-bin)
+  // 9. Vec roundtrip (ASUN-text + ASUN-bin)
   print('\n9. Vec roundtrip:');
-  final vecAson = encode(users);
+  final vecAsun = encode(users);
   final vecBin = encodeBinary(users);
-  final v1 = decodeListWith(vecAson, User.fromFields);
+  final v1 = decodeListWith(vecAsun, User.fromFields);
   assert(v1.length == users.length);
   for (int i = 0; i < users.length; i++) {
     assert(users[i] == v1[i]);
@@ -142,8 +142,8 @@ void main() {
   for (int i = 0; i < users.length; i++) {
     assert(users[i] == v2[i]);
   }
-  print('   ASON text:   ${vecAson.length} B');
-  print('   ASON binary: ${vecBin.length} B');
+  print('   ASUN text:   ${vecAsun.length} B');
+  print('   ASUN binary: ${vecBin.length} B');
   print('   ✓ vec roundtrip OK');
 
   // 10. Optional fields

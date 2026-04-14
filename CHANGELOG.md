@@ -2,4 +2,4 @@
 
 ## 1.0.0
 
-- Initial Dart release of the ASON encoder, decoder, pretty-printer, and binary codec.
+- Initial Dart release of the ASUN encoder, decoder, pretty-printer, and binary codec.

@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final bool active;
@@ -28,7 +28,7 @@ class User implements AsonSchema {
   int get hashCode => Object.hash(id, name, active);
 }
 
-class Dept implements AsonSchema {
+class Dept implements AsunSchema {
   final String title;
   Dept({required this.title});
   @override
@@ -45,7 +45,7 @@ class Dept implements AsonSchema {
   int get hashCode => title.hashCode;
 }
 
-class Employee implements AsonSchema {
+class Employee implements AsunSchema {
   final String name;
   final Dept dept;
   final bool active;
@@ -120,7 +120,7 @@ class MatrixUserNestedOptional {
   }
 }
 
-class LegacyMapHolder implements AsonSchema {
+class LegacyMapHolder implements AsunSchema {
   final Map<String, dynamic> attrs;
   LegacyMapHolder(this.attrs);
 
@@ -134,7 +134,7 @@ class LegacyMapHolder implements AsonSchema {
   List<dynamic> get fieldValues => [attrs];
 }
 
-class SpecialSchemaFields implements AsonSchema {
+class SpecialSchemaFields implements AsunSchema {
   final int idUuid;
   final String numeric;
   final bool special;
@@ -265,27 +265,27 @@ void main() {
     test('rejects invalid schema types', () {
       expect(
         () => decode('{id@numx,name@str,active@bool}:(1,Alice,true)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
       expect(
         () => decode('{id@int,name@textx,active@bool}:(1,Alice,true)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
       expect(
         () => decode('{score@decimalx}:(3.5)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
       expect(
         () => decode('{active@flagx}:(true)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
       expect(
         () => decode('{tags@[textx]}:([Alice])'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
       expect(
         () => decode('{profile@{name@textx}}:((Alice))'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
     });
 
@@ -365,14 +365,14 @@ void main() {
     test('legacy map syntax rejected', () {
       expect(
         () => decode('{attrs}:(<age:30>)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
     });
 
     test('rejects multiple tuples after a single-row schema', () {
       expect(
         () => decode('{id@int,name@str}:(101,Alice),(102,Bob)'),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
     });
 
@@ -481,7 +481,7 @@ void main() {
     test('legacy map field rejected', () {
       expect(
         () => encode(LegacyMapHolder({'age': 30})),
-        throwsA(isA<AsonError>()),
+        throwsA(isA<AsunError>()),
       );
     });
 
@@ -567,7 +567,7 @@ void main() {
 }
 
 // Helper structs for testing
-class _FloatStruct implements AsonSchema {
+class _FloatStruct implements AsunSchema {
   final double v;
   _FloatStruct({required this.v});
   @override
@@ -578,7 +578,7 @@ class _FloatStruct implements AsonSchema {
   List<dynamic> get fieldValues => [v];
 }
 
-class _NumStruct implements AsonSchema {
+class _NumStruct implements AsunSchema {
   final int a;
   final double b;
   _NumStruct({required this.a, required this.b});

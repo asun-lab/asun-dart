@@ -2,19 +2,19 @@ import 'encode.dart';
 
 const _kMaxWidth = 100;
 
-/// Encode a value to pretty-formatted ASON string (unannotated).
+/// Encode a value to pretty-formatted ASUN string (unannotated).
 String encodePretty(dynamic value) {
   final compact = encode(value);
   return prettyFormat(compact);
 }
 
-/// Encode a value to pretty-formatted ASON string with type annotations.
+/// Encode a value to pretty-formatted ASUN string with type annotations.
 String encodePrettyTyped(dynamic value) {
   final compact = encodeTyped(value);
   return prettyFormat(compact);
 }
 
-/// Reformat compact ASON string with smart indentation.
+/// Reformat compact ASUN string with smart indentation.
 ///
 /// Simple structures stay inline:
 ///   {name@str, age@int}:(Alice, 30)

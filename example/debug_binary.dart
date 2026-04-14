@@ -1,6 +1,6 @@
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final bool active;

@@ -1,33 +1,33 @@
-# ason
+# asun
 
-[![Pub Version](https://img.shields.io/pub/v/ason.svg)](https://pub.dev/packages/ason)
+[![Pub Version](https://img.shields.io/pub/v/asun.svg)](https://pub.dev/packages/asun)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A high-performance [ASON](https://github.com/ason-lab/ason) (Array-Schema Object Notation) encoder/decoder for Dart — a token-efficient, schema-driven data format designed for LLM interactions and large-scale data transmission.
+A high-performance [ASUN](https://github.com/asun-lab/asun) (Array-Schema Unified Notation) encoder/decoder for Dart — a token-efficient, schema-driven data format designed for LLM interactions and large-scale data transmission.
 
 [中文文档](README_CN.md)
 
-## What is ASON?
+## What is ASUN?
 
-ASON separates **schema** from **data**, eliminating repetitive keys found in JSON. The schema is declared once, and data rows carry only values:
+ASUN separates **schema** from **data**, eliminating repetitive keys found in JSON. The schema is declared once, and data rows carry only values:
 
 ```text
 JSON (100 tokens):
 {"users":[{"id":1,"name":"Alice","active":true},{"id":2,"name":"Bob","active":false}]}
 
-ASON (~35 tokens, 65% saving):
+ASUN (~35 tokens, 65% saving):
 [{id@int, name@str, active@bool}]:(1,Alice,true),(2,Bob,false)
 ```
 
-| Aspect              | JSON         | ASON             |
-| ------------------- | ------------ | ---------------- |
-| Token efficiency    | 100%         | 30–70% ✓         |
-| Key repetition      | Every object | Declared once ✓  |
-| Human readable      | Yes          | Yes ✓            |
-| Nested structs      | ✓            | ✓                |
-| Type annotations    | No           | Optional ✓       |
+| Aspect              | JSON         | ASUN                   |
+| ------------------- | ------------ | ---------------------- |
+| Token efficiency    | 100%         | 30–70% ✓               |
+| Key repetition      | Every object | Declared once ✓        |
+| Human readable      | Yes          | Yes ✓                  |
+| Nested structs      | ✓            | ✓                      |
+| Type annotations    | No           | Optional ✓             |
 | Serialization speed | 1x           | **~1.7–2.6x faster** ✓ |
-| Data size           | 100%         | **40–55%** ✓     |
+| Data size           | 100%         | **40–55%** ✓           |
 
 ## Quick Start
 
@@ -35,15 +35,15 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  ason: ^1.0.0
+  asun: ^1.0.0
 ```
 
 ### Serialize & Deserialize a Struct
 
 ```dart
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final bool active;
@@ -86,7 +86,7 @@ final user2 = decodeWith(s, User.fromFields);
 
 ### Serialize & Deserialize a List (Schema-Driven)
 
-For `List<AsonSchema>`, ASON writes the schema **once** and emits each element as a compact tuple — the key advantage over JSON:
+For `List<AsunSchema>`, ASUN writes the schema **once** and emits each element as a compact tuple — the key advantage over JSON:
 
 ```dart
 final users = [
@@ -108,18 +108,18 @@ final users2 = decodeListWith(s, User.fromFields);
 
 ## Supported Types
 
-| Type           | ASON Representation   | Example                  |
-| -------------- | --------------------- | ------------------------ |
-| int            | Plain number          | `42`, `-100`             |
-| float          | Decimal number        | `3.14`, `-0.5`           |
-| bool           | Literal               | `true`, `false`          |
-| str            | Unquoted or quoted    | `Alice`, `"Carol Smith"` |
-| null           | Empty (blank)         | _(blank)_ for null       |
-| List           | `[v1,v2,v3]`          | `[rust,go,python]`       |
-| Entry list     | `[(key,value), ...]`  | `[(age,30),(score,95)]`  |
-| Nested struct  | `(field1,field2)`     | `(Engineering,500000)`   |
+| Type          | ASUN Representation  | Example                  |
+| ------------- | -------------------- | ------------------------ |
+| int           | Plain number         | `42`, `-100`             |
+| float         | Decimal number       | `3.14`, `-0.5`           |
+| bool          | Literal              | `true`, `false`          |
+| str           | Unquoted or quoted   | `Alice`, `"Carol Smith"` |
+| null          | Empty (blank)        | _(blank)_ for null       |
+| List          | `[v1,v2,v3]`         | `[rust,go,python]`       |
+| Entry list    | `[(key,value), ...]` | `[(age,30),(score,95)]`  |
+| Nested struct | `(field1,field2)`    | `(Engineering,500000)`   |
 
-Native `Map<K,V>` fields are intentionally unsupported in the current ASON format.
+Native `Map<K,V>` fields are intentionally unsupported in the current ASUN format.
 If you need keyed collections, model them explicitly as entry-list arrays:
 
 ```text
@@ -129,12 +129,12 @@ If you need keyed collections, model them explicitly as entry-list arrays:
 ### Nested Structs
 
 ```dart
-class Dept implements AsonSchema {
+class Dept implements AsunSchema {
   final String title;
   // ...fieldNames/fieldTypes/fieldValues
 }
 
-class Employee implements AsonSchema {
+class Employee implements AsunSchema {
   final String name;
   final Dept dept;
   // ...fieldNames/fieldTypes/fieldValues
@@ -161,7 +161,7 @@ class Employee implements AsonSchema {
 
 ### `@` Field Binding and Optional Scalar Hints
 
-In ASON schema, `@` is the **field binding marker** between a field name and its following schema/type description. Scalar hints are optional:
+In ASUN schema, `@` is the **field binding marker** between a field name and its following schema/type description. Scalar hints are optional:
 
 ```text
 // Without annotations (default output of encode)
@@ -200,27 +200,27 @@ For scalar fields, `@int`, `@str`, `@float`, and `@bool` are optional hints. For
 
 ### Text Format
 
-| Function                    | Description                                                  |
-| --------------------------- | ------------------------------------------------------------ |
-| `encode(value)`             | Serialize → schema binding without scalar hints `{id,name}:` |
-| `encodeTyped(value)`        | Serialize → schema binding with scalar hints `{id@int,name@str}:` |
-| `decode(input)`             | Deserialize to dynamic field bag / List                      |
-| `decodeWith(input, factory)` | Deserialize to typed object using factory                    |
-| `decodeListWith(input, factory)` | Deserialize to typed list using factory                 |
+| Function                         | Description                                                       |
+| -------------------------------- | ----------------------------------------------------------------- |
+| `encode(value)`                  | Serialize → schema binding without scalar hints `{id,name}:`      |
+| `encodeTyped(value)`             | Serialize → schema binding with scalar hints `{id@int,name@str}:` |
+| `decode(input)`                  | Deserialize to dynamic field bag / List                           |
+| `decodeWith(input, factory)`     | Deserialize to typed object using factory                         |
+| `decodeListWith(input, factory)` | Deserialize to typed list using factory                           |
 
 ### Pretty Format
 
-| Function                     | Description                                   |
-| ---------------------------- | --------------------------------------------- |
-| `encodePretty(value)`        | Pretty-formatted ASON (without scalar hints)  |
-| `encodePrettyTyped(value)`   | Pretty-formatted ASON (with scalar hints)     |
+| Function                   | Description                                  |
+| -------------------------- | -------------------------------------------- |
+| `encodePretty(value)`      | Pretty-formatted ASUN (without scalar hints) |
+| `encodePrettyTyped(value)` | Pretty-formatted ASUN (with scalar hints)    |
 
 ### Binary Format
 
-| Function                                        | Description                          |
-| ----------------------------------------------- | ------------------------------------ |
-| `encodeBinary(value)`                           | Encode to compact binary bytes       |
-| `decodeBinaryWith(data, fields, types, factory)` | Decode binary to typed object       |
+| Function                                             | Description                    |
+| ---------------------------------------------------- | ------------------------------ |
+| `encodeBinary(value)`                                | Encode to compact binary bytes |
+| `decodeBinaryWith(data, fields, types, factory)`     | Decode binary to typed object  |
 | `decodeBinaryListWith(data, fields, types, factory)` | Decode binary to typed list    |
 
 ## Benchmark Output
@@ -231,18 +231,18 @@ Run the bundled benchmark with:
 dart run example/bench.dart
 ```
 
-The Dart benchmark now follows the same JSON / ASON / BIN output style as the Go benchmark:
+The Dart benchmark now follows the same JSON / ASUN / BIN output style as the Go benchmark:
 
 ```text
   Flat struct × 500 (8 fields, vec)
-    Serialize:   JSON 16.22ms/60784B | ASON 10.11ms(1.6x)/28327B(46.6%) | BIN 4.92ms(3.3x)/37230B(61.2%)
-    Deserialize: JSON    22.09ms | ASON     5.70ms(3.9x) | BIN     2.11ms(10.5x)
+    Serialize:   JSON 16.22ms/60784B | ASUN 10.11ms(1.6x)/28327B(46.6%) | BIN 4.92ms(3.3x)/37230B(61.2%)
+    Deserialize: JSON    22.09ms | ASUN     5.70ms(3.9x) | BIN     2.11ms(10.5x)
 ```
 
-`(46.6%)` means the ASON payload is `46.6%` of the JSON size, not “saved 46.6%”.
+`(46.6%)` means the ASUN payload is `46.6%` of the JSON size, not “saved 46.6%”.
 Actual timings vary by CPU, Dart VM version, and whether you benchmark flat or deeply nested data.
 
-## Why ASON Performs Well
+## Why ASUN Performs Well
 
 1. **Zero key-hashing** — Schema is parsed once; fields are matched by position instead of repeated key lookups.
 2. **Schema caching** — Parsed schema headers are cached globally, avoiding repeated header work on hot paths.
@@ -259,13 +259,13 @@ dart run example/basic.dart
 # Comprehensive (all types, nested structs, edge cases)
 dart run example/complex.dart
 
-# Performance benchmark (ASON vs JSON, throughput, size)
+# Performance benchmark (ASUN vs JSON, throughput, size)
 dart run example/bench.dart
 ```
 
-## ASON Format Specification
+## ASUN Format Specification
 
-See the full [ASON Spec](https://github.com/ason-lab/ason/blob/main/docs/ASON_SPEC.md) for syntax rules, BNF grammar, escape rules, type system, and LLM integration best practices.
+See the full [ASUN Spec](https://github.com/asun-lab/asun/blob/main/docs/ASUN_SPEC.md) for syntax rules, BNF grammar, escape rules, type system, and LLM integration best practices.
 
 ### Syntax Quick Reference
 

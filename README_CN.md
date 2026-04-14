@@ -1,33 +1,33 @@
-# ason
+# asun
 
-[![Pub Version](https://img.shields.io/pub/v/ason.svg)](https://pub.dev/packages/ason)
+[![Pub Version](https://img.shields.io/pub/v/asun.svg)](https://pub.dev/packages/asun)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-高性能 [ASON](https://github.com/ason-lab/ason)（Array-Schema Object Notation）Dart 编解码库 —— 一种面向 LLM 交互和大规模数据传输的高效序列化格式。
+高性能 [ASUN](https://github.com/asun-lab/asun)（Array-Schema Unified Notation）Dart 编解码库 —— 一种面向 LLM 交互和大规模数据传输的高效序列化格式。
 
 [English](README.md)
 
-## 什么是 ASON？
+## 什么是 ASUN？
 
-ASON 将 **Schema** 与 **数据** 分离，消除了 JSON 中每个对象都重复出现 Key 的冗余。Schema 只声明一次，数据行仅保留纯值：
+ASUN 将 **Schema** 与 **数据** 分离，消除了 JSON 中每个对象都重复出现 Key 的冗余。Schema 只声明一次，数据行仅保留纯值：
 
 ```text
 JSON (100 tokens):
 {"users":[{"id":1,"name":"Alice","active":true},{"id":2,"name":"Bob","active":false}]}
 
-ASON (~35 tokens, 节省 65%):
+ASUN (~35 tokens, 节省 65%):
 [{id@int, name@str, active@bool}]:(1,Alice,true),(2,Bob,false)
 ```
 
-| 方面       | JSON         | ASON             |
-| ---------- | ------------ | ---------------- |
-| Token 效率 | 100%         | 30–70% ✓         |
-| Key 重复   | 每个对象都有 | 声明一次 ✓       |
-| 人类可读   | 是           | 是 ✓             |
-| 嵌套结构   | ✓            | ✓                |
-| 字段绑定与基本类型提示 | 无 | 支持 ✓ |
-| 序列化速度 | 1x           | **~1.7–2.6x 更快** ✓ |
-| 数据体积   | 100%         | **40–55%** ✓     |
+| 方面                   | JSON         | ASUN                 |
+| ---------------------- | ------------ | -------------------- |
+| Token 效率             | 100%         | 30–70% ✓             |
+| Key 重复               | 每个对象都有 | 声明一次 ✓           |
+| 人类可读               | 是           | 是 ✓                 |
+| 嵌套结构               | ✓            | ✓                    |
+| 字段绑定与基本类型提示 | 无           | 支持 ✓               |
+| 序列化速度             | 1x           | **~1.7–2.6x 更快** ✓ |
+| 数据体积               | 100%         | **40–55%** ✓         |
 
 ## 快速开始
 
@@ -35,15 +35,15 @@ ASON (~35 tokens, 节省 65%):
 
 ```yaml
 dependencies:
-  ason: ^1.0.0
+  asun: ^1.0.0
 ```
 
 ### 序列化与反序列化结构体
 
 ```dart
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final bool active;
@@ -86,7 +86,7 @@ final user2 = decodeWith(s, User.fromFields);
 
 ### 序列化与反序列化 List（Schema 驱动）
 
-对于 `List<AsonSchema>`，ASON 只写入一次 Schema，每个元素以紧凑元组形式输出 —— 这是相比 JSON 的核心优势：
+对于 `List<AsunSchema>`，ASUN 只写入一次 Schema，每个元素以紧凑元组形式输出 —— 这是相比 JSON 的核心优势：
 
 ```dart
 final users = [
@@ -108,18 +108,18 @@ final users2 = decodeListWith(s, User.fromFields);
 
 ## 支持的类型
 
-| 类型       | ASON 表示             | 示例                     |
-| ---------- | --------------------- | ------------------------ |
-| int        | 纯数字                | `42`, `-100`             |
-| float      | 带小数点              | `3.14`, `-0.5`           |
-| bool       | 字面量                | `true`, `false`          |
-| str        | 无引号或有引号        | `Alice`, `"Carol Smith"` |
-| null       | 留空                  | _(空白)_ 表示 null       |
-| List       | `[v1,v2,v3]`          | `[rust,go,python]`       |
-| 键值条目列表 | `[(key,value), ...]`  | `[(age,30),(score,95)]`  |
-| 嵌套结构体 | `(field1,field2)`     | `(Engineering,500000)`   |
+| 类型         | ASUN 表示            | 示例                     |
+| ------------ | -------------------- | ------------------------ |
+| int          | 纯数字               | `42`, `-100`             |
+| float        | 带小数点             | `3.14`, `-0.5`           |
+| bool         | 字面量               | `true`, `false`          |
+| str          | 无引号或有引号       | `Alice`, `"Carol Smith"` |
+| null         | 留空                 | _(空白)_ 表示 null       |
+| List         | `[v1,v2,v3]`         | `[rust,go,python]`       |
+| 键值条目列表 | `[(key,value), ...]` | `[(age,30),(score,95)]`  |
+| 嵌套结构体   | `(field1,field2)`    | `(Engineering,500000)`   |
 
-当前 ASON 格式刻意不支持原生 `Map<K,V>` 字段。
+当前 ASUN 格式刻意不支持原生 `Map<K,V>` 字段。
 如果你需要键值集合，请显式建模成 entry-list 数组：
 
 ```text
@@ -129,12 +129,12 @@ final users2 = decodeListWith(s, User.fromFields);
 ### 嵌套结构体
 
 ```dart
-class Dept implements AsonSchema {
+class Dept implements AsunSchema {
   final String title;
   // ...fieldNames/fieldTypes/fieldValues
 }
 
-class Employee implements AsonSchema {
+class Employee implements AsunSchema {
   final String name;
   final Dept dept;
   // ...fieldNames/fieldTypes/fieldValues
@@ -163,7 +163,7 @@ class Employee implements AsonSchema {
 
 ### `@` 字段绑定与可选基本类型提示
 
-在 ASON schema 中，`@` 是字段与其后续 schema/type 描述之间的**字段绑定符**。对终端基本类型来说，`@type` 是可选提示：
+在 ASUN schema 中，`@` 是字段与其后续 schema/type 描述之间的**字段绑定符**。对终端基本类型来说，`@type` 是可选提示：
 
 ```text
 // 不带基本类型提示（encode 的默认输出）
@@ -202,28 +202,28 @@ class Employee implements AsonSchema {
 
 ### 文本格式
 
-| 函数                           | 说明                                        |
-| ------------------------------ | ------------------------------------------- |
-| `encode(value)`                | 序列化 → 不带基本类型提示的 Schema `{id,name}:`         |
-| `encodeTyped(value)`           | 序列化 → 带基本类型提示的 Schema `{id@int,name@str}:` |
-| `decode(input)`                | 反序列化为动态字段袋 / List                 |
-| `decodeWith(input, factory)`   | 反序列化为类型化对象                         |
-| `decodeListWith(input, factory)` | 反序列化为类型化列表                       |
+| 函数                             | 说明                                                  |
+| -------------------------------- | ----------------------------------------------------- |
+| `encode(value)`                  | 序列化 → 不带基本类型提示的 Schema `{id,name}:`       |
+| `encodeTyped(value)`             | 序列化 → 带基本类型提示的 Schema `{id@int,name@str}:` |
+| `decode(input)`                  | 反序列化为动态字段袋 / List                           |
+| `decodeWith(input, factory)`     | 反序列化为类型化对象                                  |
+| `decodeListWith(input, factory)` | 反序列化为类型化列表                                  |
 
 ### 美化格式
 
-| 函数                          | 说明                        |
-| ----------------------------- | --------------------------- |
-| `encodePretty(value)`         | 美化格式 ASON（不带基本类型提示）     |
-| `encodePrettyTyped(value)`    | 美化格式 ASON（带基本类型提示）     |
+| 函数                       | 说明                              |
+| -------------------------- | --------------------------------- |
+| `encodePretty(value)`      | 美化格式 ASUN（不带基本类型提示） |
+| `encodePrettyTyped(value)` | 美化格式 ASUN（带基本类型提示）   |
 
 ### 二进制格式
 
-| 函数                                             | 说明                    |
-| ------------------------------------------------ | ----------------------- |
-| `encodeBinary(value)`                            | 编码为紧凑二进制字节    |
-| `decodeBinaryWith(data, fields, types, factory)` | 解码为类型化对象        |
-| `decodeBinaryListWith(data, fields, types, factory)` | 解码为类型化列表    |
+| 函数                                                 | 说明                 |
+| ---------------------------------------------------- | -------------------- |
+| `encodeBinary(value)`                                | 编码为紧凑二进制字节 |
+| `decodeBinaryWith(data, fields, types, factory)`     | 解码为类型化对象     |
+| `decodeBinaryListWith(data, fields, types, factory)` | 解码为类型化列表     |
 
 ## Bench 输出
 
@@ -233,18 +233,18 @@ class Employee implements AsonSchema {
 dart run example/bench.dart
 ```
 
-现在 Dart 版 benchmark 已经和 Go 版统一成 JSON / ASON / BIN 的输出风格：
+现在 Dart 版 benchmark 已经和 Go 版统一成 JSON / ASUN / BIN 的输出风格：
 
 ```text
   Flat struct × 500 (8 fields, vec)
-    Serialize:   JSON 16.22ms/60784B | ASON 10.11ms(1.6x)/28327B(46.6%) | BIN 4.92ms(3.3x)/37230B(61.2%)
-    Deserialize: JSON    22.09ms | ASON     5.70ms(3.9x) | BIN     2.11ms(10.5x)
+    Serialize:   JSON 16.22ms/60784B | ASUN 10.11ms(1.6x)/28327B(46.6%) | BIN 4.92ms(3.3x)/37230B(61.2%)
+    Deserialize: JSON    22.09ms | ASUN     5.70ms(3.9x) | BIN     2.11ms(10.5x)
 ```
 
-这里的 `(46.6%)` 表示 ASON 体积是 JSON 的 `46.6%`，不是“节省了 46.6%”。
+这里的 `(46.6%)` 表示 ASUN 体积是 JSON 的 `46.6%`，不是“节省了 46.6%”。
 具体耗时会随 CPU、Dart VM 版本以及数据结构深度而变化。
 
-## 为什么 ASON 表现更好？
+## 为什么 ASUN 表现更好？
 
 1. **零键哈希** — Schema 只解析一次，字段按位置匹配，不需要重复做 key 查找。
 2. **Schema 缓存** — 解析后的 schema 头会全局缓存，热点场景下不会重复做同样的 header 工作。
@@ -261,13 +261,13 @@ dart run example/basic.dart
 # 全面测试（全类型、嵌套结构、边界用例）
 dart run example/complex.dart
 
-# 性能基准（ASON vs JSON，吞吐量，体积比较）
+# 性能基准（ASUN vs JSON，吞吐量，体积比较）
 dart run example/bench.dart
 ```
 
-## ASON 格式规范
+## ASUN 格式规范
 
-完整的 [ASON 规范](https://github.com/ason-lab/ason/blob/main/docs/ASON_SPEC_CN.md) 包含语法规则、BNF 文法、转义规则、类型系统及 LLM 集成最佳实践。
+完整的 [ASUN 规范](https://github.com/asun-lab/asun/blob/main/docs/ASUN_SPEC_CN.md) 包含语法规则、BNF 文法、转义规则、类型系统及 LLM 集成最佳实践。
 
 ### 语法速查表
 

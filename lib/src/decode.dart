@@ -9,7 +9,7 @@ final Map<int, List<String>> _schemaCache = {};
 // Public API
 // ---------------------------------------------------------------------------
 
-/// Decode an ASON text string into a structured Dart value.
+/// Decode an ASUN text string into a structured Dart value.
 dynamic decode(String input) {
   final d = _Decoder(input);
   d._skipWsAndComments();
@@ -19,28 +19,28 @@ dynamic decode(String input) {
     for (int i = d._pos; i < d._len; i++) {
       final c = input.codeUnitAt(i);
       if (c != 0x20 && c != 0x09 && c != 0x0A && c != 0x0D) {
-        throw AsonError.trailingCharacters;
+        throw AsunError.trailingCharacters;
       }
     }
   }
   return result;
 }
 
-/// Decode ASON text into a typed object using a field-bag factory function.
+/// Decode ASUN text into a typed object using a field-bag factory function.
 T decodeWith<T>(String input, T Function(Map<String, dynamic>) factory) {
   final raw = decode(input);
   if (raw is Map<String, dynamic>) {
     return factory(raw);
   }
-  throw AsonError('expected struct, got ${raw.runtimeType}');
+  throw AsunError('expected struct, got ${raw.runtimeType}');
 }
 
-/// Decode ASON text into a list of typed objects.
+/// Decode ASUN text into a list of typed objects.
 List<T> decodeListWith<T>(
     String input, T Function(Map<String, dynamic>) factory) {
   final d = _Decoder(input);
   d._skipWsAndComments();
-  if (d._pos >= d._len) throw AsonError('empty input');
+  if (d._pos >= d._len) throw AsunError('empty input');
 
   // Fast path: detect vec struct pattern [{...}]:
   final c = d._peek();
@@ -60,7 +60,7 @@ List<T> decodeListWith<T>(
   if (raw is List) {
     return raw.map((e) => factory(e as Map<String, dynamic>)).toList();
   }
-  throw AsonError('expected list, got ${raw.runtimeType}');
+  throw AsunError('expected list, got ${raw.runtimeType}');
 }
 
 // ---------------------------------------------------------------------------
@@ -82,7 +82,7 @@ class _Decoder {
   }
 
   int _next() {
-    if (_pos >= _len) throw AsonError.eof;
+    if (_pos >= _len) throw AsunError.eof;
     return _input.codeUnitAt(_pos++);
   }
 
@@ -143,7 +143,7 @@ class _Decoder {
 
   List<String> _parseSchema() {
     final schemaStart = _pos;
-    if (_next() != 0x7B) throw AsonError.expectedOpenBrace;
+    if (_next() != 0x7B) throw AsunError.expectedOpenBrace;
 
     // Find end of schema to compute cache key
     int braceDepth = 1;
@@ -172,7 +172,7 @@ class _Decoder {
         break;
       }
       if (fields.isNotEmpty) {
-        if (_next() != 0x2C) throw AsonError.expectedComma;
+        if (_next() != 0x2C) throw AsunError.expectedComma;
         _skipWs();
       }
       final name = _peek() == 0x22 ? _parseQuotedString() : _parseSchemaBareName();
@@ -192,7 +192,7 @@ class _Decoder {
 
   void _validateSchemaAnnotation() {
     if (_pos >= _len) {
-      throw AsonError("expected schema type after '@'");
+      throw AsunError("expected schema type after '@'");
     }
     final tc = _input.codeUnitAt(_pos);
     if (tc == 0x7B) {
@@ -213,7 +213,7 @@ class _Decoder {
       }
       _skipWs();
       if (_pos >= _len || _input.codeUnitAt(_pos) != 0x5D) {
-        throw AsonError("expected ']' in array type annotation");
+        throw AsunError("expected ']' in array type annotation");
       }
       _pos++;
       return;
@@ -231,14 +231,14 @@ class _Decoder {
       _pos++;
     }
     if (start == _pos) {
-      throw AsonError("expected schema type after '@'");
+      throw AsunError("expected schema type after '@'");
     }
     var token = _input.substring(start, _pos);
     if (token.endsWith('?')) token = token.substring(0, token.length - 1);
     if (token == 'int' || token == 'str' || token == 'float' || token == 'bool') {
       return;
     }
-    throw AsonError("unsupported schema type '$token'; use int, str, float, or bool");
+    throw AsunError("unsupported schema type '$token'; use int, str, float, or bool");
   }
 
   String _parseSchemaBareName() {
@@ -265,7 +265,7 @@ class _Decoder {
         if (depth == 0) return;
       }
     }
-    throw AsonError.eof;
+    throw AsunError.eof;
   }
 
   // -- Struct parsing -------------------------------------------------------
@@ -273,7 +273,7 @@ class _Decoder {
   Map<String, dynamic> _parseSingleStruct() {
     final fields = _parseSchema();
     _skipWsAndComments();
-    if (_next() != 0x3A) throw AsonError.expectedColon;
+    if (_next() != 0x3A) throw AsunError.expectedColon;
     _skipWs();
     return _parseTupleAsMap(fields);
   }
@@ -282,9 +282,9 @@ class _Decoder {
     _pos++; // skip [
     final fields = _parseSchema();
     _skipWs();
-    if (_next() != 0x5D) throw AsonError.expectedCloseBracket;
+    if (_next() != 0x5D) throw AsunError.expectedCloseBracket;
     _skipWs();
-    if (_next() != 0x3A) throw AsonError.expectedColon;
+    if (_next() != 0x3A) throw AsunError.expectedColon;
 
     final result = <Map<String, dynamic>>[];
     // Reuse a single map and copy into new maps to reduce allocation
@@ -304,7 +304,7 @@ class _Decoder {
   }
 
   Map<String, dynamic> _parseTupleAsMap(List<String> fields) {
-    if (_next() != 0x28) throw AsonError.expectedOpenParen;
+    if (_next() != 0x28) throw AsunError.expectedOpenParen;
     final map = <String, dynamic>{};
     final fieldCount = fields.length;
     for (int i = 0; i < fieldCount; i++) {
@@ -355,7 +355,7 @@ class _Decoder {
       case 0x5B:
         _skipBalanced(0x5B, 0x5D);
       case 0x3C:
-        throw AsonError.unsupportedMap;
+        throw AsunError.unsupportedMap;
       case 0x22:
         _pos++;
         while (_pos < _len) {
@@ -369,7 +369,7 @@ class _Decoder {
             _pos++;
           }
         }
-        throw AsonError.unclosedString;
+        throw AsunError.unclosedString;
       default:
         while (_pos < _len) {
           final ch = _input.codeUnitAt(_pos);
@@ -379,7 +379,7 @@ class _Decoder {
     }
   }
 
-  // -- Value parsing — optimized branch order for typical ASON data ----------
+  // -- Value parsing — optimized branch order for typical ASUN data ----------
 
   dynamic _parseValueFast() {
     if (_pos >= _len) return null;
@@ -389,7 +389,7 @@ class _Decoder {
     // Null — at delimiter
     if (c == 0x2C || c == 0x29 || c == 0x5D) return null;
 
-    // Number first (most common in ASON structured data)
+    // Number first (most common in ASUN structured data)
     if ((c >= 0x30 && c <= 0x39) || c == 0x2D) return _parseNumber();
 
     // Quoted string
@@ -427,7 +427,7 @@ class _Decoder {
     // Schema-prefixed nested struct
     if (c == 0x7B) return _parseSingleStruct();
 
-    if (c == 0x3C) throw AsonError.unsupportedMap;
+    if (c == 0x3C) throw AsunError.unsupportedMap;
 
     // Plain string value
     return _parsePlainValue();
@@ -461,7 +461,7 @@ class _Decoder {
       _pos++;
       digits++;
     }
-    if (digits == 0) throw AsonError.invalidNumber;
+    if (digits == 0) throw AsunError.invalidNumber;
 
     if (_pos < _len && _input.codeUnitAt(_pos) == 0x2E) {
       _pos = start;
@@ -549,7 +549,7 @@ class _Decoder {
       }
       if (c == 0x5C) {
         _pos++;
-        if (_pos >= _len) throw AsonError.unclosedString;
+        if (_pos >= _len) throw AsunError.unclosedString;
         final esc = _input.codeUnitAt(_pos);
         _pos++;
         switch (esc) {
@@ -574,21 +574,21 @@ class _Decoder {
           case 0x5D:
             buf.write(']');
           case 0x75: // u — unicode escape
-            if (_pos + 4 > _len) throw AsonError.invalidUnicodeEscape;
+            if (_pos + 4 > _len) throw AsunError.invalidUnicodeEscape;
             final hex = _input.substring(_pos, _pos + 4);
             final cp = int.tryParse(hex, radix: 16);
-            if (cp == null) throw AsonError.invalidUnicodeEscape;
+            if (cp == null) throw AsunError.invalidUnicodeEscape;
             buf.writeCharCode(cp);
             _pos += 4;
           default:
-            throw AsonError('invalid escape: \\${String.fromCharCode(esc)}');
+            throw AsunError('invalid escape: \\${String.fromCharCode(esc)}');
         }
       } else {
         buf.writeCharCode(c);
         _pos++;
       }
     }
-    throw AsonError.unclosedString;
+    throw AsunError.unclosedString;
   }
 
   String _parsePlainValue() {
@@ -616,7 +616,7 @@ class _Decoder {
     while (i < units.length) {
       if (units[i] == 0x5C) {
         i++;
-        if (i >= units.length) throw AsonError.eof;
+        if (i >= units.length) throw AsunError.eof;
         switch (units[i]) {
           case 0x2C:
             buf.write(',');
@@ -637,14 +637,14 @@ class _Decoder {
           case 0x74:
             buf.write('\t');
           case 0x75: // u
-            if (i + 4 >= units.length) throw AsonError.invalidUnicodeEscape;
+            if (i + 4 >= units.length) throw AsunError.invalidUnicodeEscape;
             final hex = s.substring(i + 1, i + 5);
             final cp = int.tryParse(hex, radix: 16);
-            if (cp == null) throw AsonError.invalidUnicodeEscape;
+            if (cp == null) throw AsunError.invalidUnicodeEscape;
             buf.writeCharCode(cp);
             i += 4;
           default:
-            throw AsonError(
+            throw AsunError(
                 'invalid escape: \\${String.fromCharCode(units[i])}');
         }
       } else {

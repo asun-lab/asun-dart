@@ -18,43 +18,43 @@ const _kSpecial = <int>{
   0x09, // \t
 };
 
-/// Encode a value to compact ASON string (unannotated schema).
+/// Encode a value to compact ASUN string (unannotated schema).
 String encode(dynamic value) {
   final buf = StringBuffer();
-  if (value is AsonSchema) {
+  if (value is AsunSchema) {
     _encodeStruct(buf, value, false);
   } else if (value is List) {
     _encodeTopList(buf, value, false);
   } else if (value is Map) {
-    throw AsonError.unsupportedMap;
+    throw AsunError.unsupportedMap;
   } else {
     _encodeValue(buf, value);
   }
   return buf.toString();
 }
 
-/// Encode a value to ASON string with type-annotated schema.
+/// Encode a value to ASUN string with type-annotated schema.
 String encodeTyped(dynamic value) {
   final buf = StringBuffer();
-  if (value is AsonSchema) {
+  if (value is AsunSchema) {
     _encodeStruct(buf, value, true);
   } else if (value is List) {
     _encodeTopList(buf, value, true);
   } else if (value is Map) {
-    throw AsonError.unsupportedMap;
+    throw AsunError.unsupportedMap;
   } else {
     _encodeValue(buf, value);
   }
   return buf.toString();
 }
 
-void _encodeStruct(StringBuffer buf, AsonSchema obj, bool typed) {
+void _encodeStruct(StringBuffer buf, AsunSchema obj, bool typed) {
   _writeSchema(buf, obj, typed);
   buf.write(':');
   _writeTuple(buf, obj.fieldValues);
 }
 
-void _writeSchema(StringBuffer buf, AsonSchema obj, bool typed) {
+void _writeSchema(StringBuffer buf, AsunSchema obj, bool typed) {
   final names = obj.fieldNames;
   final values = obj.fieldValues;
   final types = obj.fieldTypes;
@@ -78,9 +78,9 @@ void _writeFieldSchema(
 ) {
   _writeSchemaFieldName(buf, name);
 
-  if (value is Map) throw AsonError.unsupportedMap;
+  if (value is Map) throw AsunError.unsupportedMap;
 
-  if (value is AsonSchema) {
+  if (value is AsunSchema) {
     buf.write('@');
     _writeSchema(buf, value, typed);
     return;
@@ -170,11 +170,11 @@ void _writeArrayTypeHeader(
   String? declaredType,
   bool typed,
 ) {
-  if (list.any((item) => item is Map)) throw AsonError.unsupportedMap;
+  if (list.any((item) => item is Map)) throw AsunError.unsupportedMap;
 
-  if (list.isNotEmpty && list.first is AsonSchema) {
+  if (list.isNotEmpty && list.first is AsunSchema) {
     buf.write('@[');
-    _writeSchema(buf, list.first as AsonSchema, typed);
+    _writeSchema(buf, list.first as AsunSchema, typed);
     buf.write(']');
     return;
   }
@@ -247,7 +247,7 @@ String _stripScalarAnnotations(String type) {
 }
 
 void _encodeTopList(StringBuffer buf, List list, bool typed) {
-  if (list.any((item) => item is Map)) throw AsonError.unsupportedMap;
+  if (list.any((item) => item is Map)) throw AsunError.unsupportedMap;
 
   if (list.isEmpty) {
     buf.write('[]');
@@ -255,13 +255,13 @@ void _encodeTopList(StringBuffer buf, List list, bool typed) {
   }
 
   final first = list.first;
-  if (first is AsonSchema) {
+  if (first is AsunSchema) {
     buf.write('[');
     _writeSchema(buf, first, typed);
     buf.write(']:');
     for (int i = 0; i < list.length; i++) {
       if (i > 0) buf.write(',');
-      final obj = list[i] as AsonSchema;
+      final obj = list[i] as AsunSchema;
       _writeTuple(buf, obj.fieldValues);
     }
     return;
@@ -302,17 +302,17 @@ void _encodeValue(StringBuffer buf, dynamic v) {
     _writeString(buf, v);
     return;
   }
-  if (v is AsonSchema) {
+  if (v is AsunSchema) {
     _writeTuple(buf, v.fieldValues);
     return;
   }
   if (v is List) {
-    if (v.any((item) => item is Map)) throw AsonError.unsupportedMap;
+    if (v.any((item) => item is Map)) throw AsunError.unsupportedMap;
     buf.write('[');
     for (int i = 0; i < v.length; i++) {
       if (i > 0) buf.write(',');
       final item = v[i];
-      if (item is AsonSchema) {
+      if (item is AsunSchema) {
         _writeTuple(buf, item.fieldValues);
       } else {
         _encodeValue(buf, item);
@@ -321,7 +321,7 @@ void _encodeValue(StringBuffer buf, dynamic v) {
     buf.write(']');
     return;
   }
-  if (v is Map) throw AsonError.unsupportedMap;
+  if (v is Map) throw AsunError.unsupportedMap;
   _writeString(buf, v.toString());
 }
 

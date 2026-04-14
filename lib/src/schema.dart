@@ -1,8 +1,8 @@
-/// Schema descriptor for ASON struct serialization.
+/// Schema descriptor for ASUN struct serialization.
 ///
 /// Implement this on your data classes to enable schema-driven encoding.
 /// Fields are serialized positionally — order must match [fieldNames].
-abstract class AsonSchema {
+abstract class AsunSchema {
   /// Field names in declaration order.
   List<String> get fieldNames;
 
@@ -11,18 +11,18 @@ abstract class AsonSchema {
   List<String?> get fieldTypes;
 
   /// Serialize field values in order into the value list.
-  /// Return a list of raw Dart values (int, double, bool, String, List, null, or nested AsonSchema).
+  /// Return a list of raw Dart values (int, double, bool, String, List, null, or nested AsunSchema).
   List<dynamic> get fieldValues;
 }
 
-/// Type annotations for ASON schema.
-class AsonType {
+/// Type annotations for ASUN schema.
+class AsunType {
   static const int_ = 'int';
   static const float_ = 'float';
   static const str_ = 'str';
   static const bool_ = 'bool';
 
-  /// Get ASON type string for a Dart value.
+  /// Get ASUN type string for a Dart value.
   static String? fromValue(dynamic v) {
     if (v is bool) return bool_;
     if (v is int) return int_;

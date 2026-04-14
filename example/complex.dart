@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
 // ===========================================================================
 // Data classes
 // ===========================================================================
 
-class Department implements AsonSchema {
+class Department implements AsunSchema {
   final String title;
   Department({required this.title});
 
@@ -27,7 +27,7 @@ class Department implements AsonSchema {
   String toString() => 'Department($title)';
 }
 
-class Employee implements AsonSchema {
+class Employee implements AsunSchema {
   final int id;
   final String name;
   final Department dept;
@@ -74,7 +74,7 @@ class Employee implements AsonSchema {
       'Employee(id:$id, name:$name, dept:${dept.title}, skills:$skills, active:$active)';
 }
 
-class Address implements AsonSchema {
+class Address implements AsunSchema {
   final String city;
   final int zip;
   Address({required this.city, required this.zip});
@@ -97,7 +97,7 @@ class Address implements AsonSchema {
   String toString() => 'Address($city, $zip)';
 }
 
-class Nested implements AsonSchema {
+class Nested implements AsunSchema {
   final String name;
   final Address addr;
   Nested({required this.name, required this.addr});
@@ -128,7 +128,7 @@ class Nested implements AsonSchema {
 
 // 5-level deep: Country > Region > City > District > Street > Building
 
-class Building implements AsonSchema {
+class Building implements AsunSchema {
   final String name;
   final int floors;
   final bool residential;
@@ -163,7 +163,7 @@ class Building implements AsonSchema {
   String toString() => 'Building($name, $floors floors, ${heightM}m)';
 }
 
-class Street implements AsonSchema {
+class Street implements AsunSchema {
   final String name;
   final double lengthKm;
   final List<Building> buildings;
@@ -191,7 +191,7 @@ class Street implements AsonSchema {
   int get hashCode => name.hashCode;
 }
 
-class District implements AsonSchema {
+class District implements AsunSchema {
   final String name;
   final int population;
   final List<Street> streets;
@@ -220,7 +220,7 @@ class District implements AsonSchema {
   int get hashCode => name.hashCode;
 }
 
-class City implements AsonSchema {
+class City implements AsunSchema {
   final String name;
   final int population;
   final double areaKm2;
@@ -255,7 +255,7 @@ class City implements AsonSchema {
   int get hashCode => name.hashCode;
 }
 
-class Region implements AsonSchema {
+class Region implements AsunSchema {
   final String name;
   final List<City> cities;
 
@@ -281,7 +281,7 @@ class Region implements AsonSchema {
   int get hashCode => name.hashCode;
 }
 
-class Country implements AsonSchema {
+class Country implements AsunSchema {
   final String name;
   final String code;
   final int population;
@@ -328,7 +328,7 @@ class Country implements AsonSchema {
 // ===========================================================================
 
 void main() {
-  print('=== ASON Dart Complex Examples ===\n');
+  print('=== ASUN Dart Complex Examples ===\n');
 
   // 1. Nested struct
   print('1. Nested struct:');
@@ -423,10 +423,10 @@ void main() {
   print(
       '   first 200 chars: ${countryStr.substring(0, 200.clamp(0, countryStr.length))}...');
 
-  // ASON binary roundtrip
+  // ASUN binary roundtrip
   final bin = encodeBinary(country);
-  print('   ✓ 5-level ASON-text encode OK');
-  print('   ASON text: ${countryStr.length} B | ASON bin: ${bin.length} B');
+  print('   ✓ 5-level ASUN-text encode OK');
+  print('   ASUN text: ${countryStr.length} B | ASUN bin: ${bin.length} B');
 
   // JSON comparison
   final jsonStr = jsonEncode(_countryToJson(country));
@@ -479,26 +479,26 @@ void main() {
                     )),
           ));
 
-  int totalAsonBytes = 0;
+  int totalAsunBytes = 0;
   int totalJsonBytes = 0;
   int totalBinBytes = 0;
   for (final c in countries) {
     final s = encode(c);
     final j = jsonEncode(_countryToJson(c));
     final b = encodeBinary(c);
-    totalAsonBytes += s.length;
+    totalAsunBytes += s.length;
     totalJsonBytes += j.length;
     totalBinBytes += b.length;
   }
   print('   100 countries with 5-level nesting:');
   print(
-      '   Total ASON text: $totalAsonBytes bytes (${(totalAsonBytes / 1024).toStringAsFixed(1)} KB)');
+      '   Total ASUN text: $totalAsunBytes bytes (${(totalAsunBytes / 1024).toStringAsFixed(1)} KB)');
   print(
-      '   Total ASON bin:  $totalBinBytes bytes (${(totalBinBytes / 1024).toStringAsFixed(1)} KB)');
+      '   Total ASUN bin:  $totalBinBytes bytes (${(totalBinBytes / 1024).toStringAsFixed(1)} KB)');
   print(
       '   Total JSON:      $totalJsonBytes bytes (${(totalJsonBytes / 1024).toStringAsFixed(1)} KB)');
   print(
-      '   TEXT vs JSON: ${((1.0 - totalAsonBytes / totalJsonBytes) * 100).toStringAsFixed(0)}% smaller');
+      '   TEXT vs JSON: ${((1.0 - totalAsunBytes / totalJsonBytes) * 100).toStringAsFixed(0)}% smaller');
   print(
       '   BIN vs JSON: ${((1.0 - totalBinBytes / totalJsonBytes) * 100).toStringAsFixed(0)}% smaller');
   print('   ✓ large structure complete');

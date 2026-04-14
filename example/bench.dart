@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ason/ason.dart';
+import 'package:asun/asun.dart';
 
-class User implements AsonSchema {
+class User implements AsunSchema {
   final int id;
   final String name;
   final String email;
@@ -82,7 +82,7 @@ class User implements AsonSchema {
       };
 }
 
-class AllTypes implements AsonSchema {
+class AllTypes implements AsunSchema {
   final bool b;
   final int i8v;
   final int i16v;
@@ -256,7 +256,7 @@ class AllTypes implements AsonSchema {
       };
 }
 
-class Task implements AsonSchema {
+class Task implements AsunSchema {
   final int id;
   final String title;
   final int priority;
@@ -309,7 +309,7 @@ class Task implements AsonSchema {
       };
 }
 
-class Project implements AsonSchema {
+class Project implements AsunSchema {
   final String name;
   final double budget;
   final bool active;
@@ -357,7 +357,7 @@ class Project implements AsonSchema {
       };
 }
 
-class Team implements AsonSchema {
+class Team implements AsunSchema {
   final String name;
   final String lead;
   final int size;
@@ -405,7 +405,7 @@ class Team implements AsonSchema {
       };
 }
 
-class Division implements AsonSchema {
+class Division implements AsunSchema {
   final String name;
   final String location;
   final int headcount;
@@ -453,7 +453,7 @@ class Division implements AsonSchema {
       };
 }
 
-class Company implements AsonSchema {
+class Company implements AsunSchema {
   final String name;
   final int founded;
   final double revenueM;
@@ -517,25 +517,25 @@ class Company implements AsonSchema {
 class BenchResult {
   final String name;
   final double jsonSerMs;
-  final double asonSerMs;
+  final double asunSerMs;
   final double binSerMs;
   final double jsonDeMs;
-  final double asonDeMs;
+  final double asunDeMs;
   final double binDeMs;
   final int jsonBytes;
-  final int asonBytes;
+  final int asunBytes;
   final int binBytes;
 
   BenchResult({
     required this.name,
     required this.jsonSerMs,
-    required this.asonSerMs,
+    required this.asunSerMs,
     required this.binSerMs,
     required this.jsonDeMs,
-    required this.asonDeMs,
+    required this.asunDeMs,
     required this.binDeMs,
     required this.jsonBytes,
-    required this.asonBytes,
+    required this.asunBytes,
     required this.binBytes,
   });
 
@@ -543,12 +543,12 @@ class BenchResult {
     print('  $name');
     print(
       '    Serialize:   JSON ${jsonSerMs.toStringAsFixed(2)}ms/${jsonBytes}B | '
-      'ASON ${asonSerMs.toStringAsFixed(2)}ms(${_formatRatio(jsonSerMs, asonSerMs)})/${asonBytes}B(${_formatPercent(asonBytes, jsonBytes)}) | '
+      'ASUN ${asunSerMs.toStringAsFixed(2)}ms(${_formatRatio(jsonSerMs, asunSerMs)})/${asunBytes}B(${_formatPercent(asunBytes, jsonBytes)}) | '
       'BIN ${binSerMs.toStringAsFixed(2)}ms(${_formatRatio(jsonSerMs, binSerMs)})/${binBytes}B(${_formatPercent(binBytes, jsonBytes)})',
     );
     print(
       '    Deserialize: JSON ${jsonDeMs.toStringAsFixed(2).padLeft(8)}ms | '
-      'ASON ${asonDeMs.toStringAsFixed(2).padLeft(8)}ms(${_formatRatio(jsonDeMs, asonDeMs)}) | '
+      'ASUN ${asunDeMs.toStringAsFixed(2).padLeft(8)}ms(${_formatRatio(jsonDeMs, asunDeMs)}) | '
       'BIN ${binDeMs.toStringAsFixed(2).padLeft(8)}ms(${_formatRatio(jsonDeMs, binDeMs)})',
     );
   }
@@ -708,13 +708,13 @@ void _warmUp() {
   final allTypes = generateAllTypes(50);
   final companies = generateCompanies(10);
   final userJson = jsonEncode(users.map((u) => u.toJson()).toList());
-  final userAson = encode(users);
+  final userAsun = encode(users);
   final userBin = encodeBinary(users);
   final allJson = jsonEncode(allTypes.map((a) => a.toJson()).toList());
-  final allAson = encode(allTypes);
+  final allAsun = encode(allTypes);
   final allBin = encodeBinary(allTypes);
   final companyJson = jsonEncode(companies.map((c) => c.toJson()).toList());
-  final companyAson = encode(companies);
+  final companyAsun = encode(companies);
   final companyBin = encodeBinary(companies);
 
   for (int i = 0; i < 50; i++) {
@@ -722,7 +722,7 @@ void _warmUp() {
     encode(users);
     encodeBinary(users);
     _decodeJsonUsers(userJson);
-    decodeListWith(userAson, User.fromFields);
+    decodeListWith(userAsun, User.fromFields);
     decodeBinaryListWith(
         userBin, User.binFields, User.binTypes, User.fromFields);
   }
@@ -732,7 +732,7 @@ void _warmUp() {
     encode(allTypes);
     encodeBinary(allTypes);
     _decodeJsonAllTypes(allJson);
-    decodeListWith(allAson, AllTypes.fromFields);
+    decodeListWith(allAsun, AllTypes.fromFields);
     decodeBinaryListWith(
       allBin,
       AllTypes.binFields,
@@ -746,7 +746,7 @@ void _warmUp() {
     encode(companies);
     encodeBinary(companies);
     _decodeJsonCompanies(companyJson);
-    decodeListWith(companyAson, Company.fromFields);
+    decodeListWith(companyAsun, Company.fromFields);
     _BenchDecode.decodeCompanyListBinary(companyBin);
   }
   print('Warmup complete.');
@@ -756,7 +756,7 @@ BenchResult benchFlat(int count, int iterations) {
   final users = generateUsers(count);
   final jsonList = users.map((u) => u.toJson()).toList();
   String jsonStr = '';
-  String asonStr = '';
+  String asunStr = '';
   Uint8List binData = Uint8List(0);
 
   final jsonSerMs = _measureMs(() {
@@ -764,9 +764,9 @@ BenchResult benchFlat(int count, int iterations) {
       jsonStr = jsonEncode(jsonList);
     }
   });
-  final asonSerMs = _measureMs(() {
+  final asunSerMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      asonStr = encode(users);
+      asunStr = encode(users);
     }
   });
   final binSerMs = _measureMs(() {
@@ -779,9 +779,9 @@ BenchResult benchFlat(int count, int iterations) {
       _decodeJsonUsers(jsonStr);
     }
   });
-  final asonDeMs = _measureMs(() {
+  final asunDeMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      decodeListWith(asonStr, User.fromFields);
+      decodeListWith(asunStr, User.fromFields);
     }
   });
   final binDeMs = _measureMs(() {
@@ -794,13 +794,13 @@ BenchResult benchFlat(int count, int iterations) {
   return BenchResult(
     name: 'Flat struct × $count (8 fields, vec)',
     jsonSerMs: jsonSerMs,
-    asonSerMs: asonSerMs,
+    asunSerMs: asunSerMs,
     binSerMs: binSerMs,
     jsonDeMs: jsonDeMs,
-    asonDeMs: asonDeMs,
+    asunDeMs: asunDeMs,
     binDeMs: binDeMs,
     jsonBytes: utf8.encode(jsonStr).length,
-    asonBytes: utf8.encode(asonStr).length,
+    asunBytes: utf8.encode(asunStr).length,
     binBytes: binData.length,
   );
 }
@@ -809,7 +809,7 @@ BenchResult benchAllTypes(int count, int iterations) {
   final items = generateAllTypes(count);
   final jsonList = items.map((a) => a.toJson()).toList();
   String jsonStr = '';
-  String asonStr = '';
+  String asunStr = '';
   Uint8List binData = Uint8List(0);
 
   final jsonSerMs = _measureMs(() {
@@ -817,9 +817,9 @@ BenchResult benchAllTypes(int count, int iterations) {
       jsonStr = jsonEncode(jsonList);
     }
   });
-  final asonSerMs = _measureMs(() {
+  final asunSerMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      asonStr = encode(items);
+      asunStr = encode(items);
     }
   });
   final binSerMs = _measureMs(() {
@@ -832,9 +832,9 @@ BenchResult benchAllTypes(int count, int iterations) {
       _decodeJsonAllTypes(jsonStr);
     }
   });
-  final asonDeMs = _measureMs(() {
+  final asunDeMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      decodeListWith(asonStr, AllTypes.fromFields);
+      decodeListWith(asunStr, AllTypes.fromFields);
     }
   });
   final binDeMs = _measureMs(() {
@@ -851,13 +851,13 @@ BenchResult benchAllTypes(int count, int iterations) {
   return BenchResult(
     name: 'All-types struct × $count (16 fields, vec)',
     jsonSerMs: jsonSerMs,
-    asonSerMs: asonSerMs,
+    asunSerMs: asunSerMs,
     binSerMs: binSerMs,
     jsonDeMs: jsonDeMs,
-    asonDeMs: asonDeMs,
+    asunDeMs: asunDeMs,
     binDeMs: binDeMs,
     jsonBytes: utf8.encode(jsonStr).length,
-    asonBytes: utf8.encode(asonStr).length,
+    asunBytes: utf8.encode(asunStr).length,
     binBytes: binData.length,
   );
 }
@@ -866,7 +866,7 @@ BenchResult benchDeep(int count, int iterations) {
   final companies = generateCompanies(count);
   final jsonList = companies.map((c) => c.toJson()).toList();
   String jsonStr = '';
-  String asonStr = '';
+  String asunStr = '';
   Uint8List binData = Uint8List(0);
 
   final jsonSerMs = _measureMs(() {
@@ -874,9 +874,9 @@ BenchResult benchDeep(int count, int iterations) {
       jsonStr = jsonEncode(jsonList);
     }
   });
-  final asonSerMs = _measureMs(() {
+  final asunSerMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      asonStr = encode(companies);
+      asunStr = encode(companies);
     }
   });
   final binSerMs = _measureMs(() {
@@ -889,9 +889,9 @@ BenchResult benchDeep(int count, int iterations) {
       _decodeJsonCompanies(jsonStr);
     }
   });
-  final asonDeMs = _measureMs(() {
+  final asunDeMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
-      decodeListWith(asonStr, Company.fromFields);
+      decodeListWith(asunStr, Company.fromFields);
     }
   });
   final binDeMs = _measureMs(() {
@@ -903,13 +903,13 @@ BenchResult benchDeep(int count, int iterations) {
   return BenchResult(
     name: '5-level deep × $count (Company>Division>Team>Project>Task)',
     jsonSerMs: jsonSerMs,
-    asonSerMs: asonSerMs,
+    asunSerMs: asunSerMs,
     binSerMs: binSerMs,
     jsonDeMs: jsonDeMs,
-    asonDeMs: asonDeMs,
+    asunDeMs: asunDeMs,
     binDeMs: binDeMs,
     jsonBytes: utf8.encode(jsonStr).length,
-    asonBytes: utf8.encode(asonStr).length,
+    asunBytes: utf8.encode(asunStr).length,
     binBytes: binData.length,
   );
 }
@@ -919,7 +919,7 @@ BenchResult benchDeep(int count, int iterations) {
   final user = users.first;
   final jsonObject = user.toJson();
 
-  final asonMs = _measureMs(() {
+  final asunMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
       final s = encode(user);
       decodeWith(s, User.fromFields);
@@ -931,14 +931,14 @@ BenchResult benchDeep(int count, int iterations) {
       User.fromFields(_asFieldBag(jsonDecode(s)));
     }
   });
-  return (asonMs, jsonMs);
+  return (asunMs, jsonMs);
 }
 
 (double, double) benchDeepSingleRoundtrip(int iterations) {
   final company = generateCompanies(1).first;
   final jsonObject = company.toJson();
 
-  final asonMs = _measureMs(() {
+  final asunMs = _measureMs(() {
     for (int i = 0; i < iterations; i++) {
       final s = encode(company);
       decodeWith(s, Company.fromFields);
@@ -950,7 +950,7 @@ BenchResult benchDeep(int count, int iterations) {
       Company.fromFields(_asFieldBag(jsonDecode(s)));
     }
   });
-  return (asonMs, jsonMs);
+  return (asunMs, jsonMs);
 }
 
 class _BenchDecode {
@@ -1048,7 +1048,7 @@ class _BenchBinReader {
 
 void main() {
   print('╔══════════════════════════════════════════════════════════════╗');
-  print('║            ASON vs JSON Comprehensive Benchmark              ║');
+  print('║            ASUN vs JSON Comprehensive Benchmark              ║');
   print('╚══════════════════════════════════════════════════════════════╝');
   print('');
   print('System: ${Platform.operatingSystemVersion}');
@@ -1083,13 +1083,13 @@ void main() {
   print('');
   final flatRoundtrip = benchSingleRoundtrip(10000);
   print(
-    '  Flat:  ASON ${flatRoundtrip.$1.toStringAsFixed(2).padLeft(8)}ms | '
+    '  Flat:  ASUN ${flatRoundtrip.$1.toStringAsFixed(2).padLeft(8)}ms | '
     'JSON ${flatRoundtrip.$2.toStringAsFixed(2).padLeft(8)}ms | '
     'ratio ${(flatRoundtrip.$2 / flatRoundtrip.$1).toStringAsFixed(2)}x',
   );
   final deepRoundtrip = benchDeepSingleRoundtrip(10000);
   print(
-    '  Deep:  ASON ${deepRoundtrip.$1.toStringAsFixed(2).padLeft(8)}ms | '
+    '  Deep:  ASUN ${deepRoundtrip.$1.toStringAsFixed(2).padLeft(8)}ms | '
     'JSON ${deepRoundtrip.$2.toStringAsFixed(2).padLeft(8)}ms | '
     'ratio ${(deepRoundtrip.$2 / deepRoundtrip.$1).toStringAsFixed(2)}x',
   );
@@ -1160,7 +1160,7 @@ void main() {
   {
     final users = generateUsers(1000);
     final json = jsonEncode(users.map((u) => u.toJson()).toList());
-    final asonText = encode(users);
+    final asunText = encode(users);
     const iterations = 100;
     final jsonSerSecs = _measureMs(() {
           for (int i = 0; i < iterations; i++) {
@@ -1168,7 +1168,7 @@ void main() {
           }
         }) /
         1000.0;
-    final asonSerSecs = _measureMs(() {
+    final asunSerSecs = _measureMs(() {
           for (int i = 0; i < iterations; i++) {
             encode(users);
           }
@@ -1180,9 +1180,9 @@ void main() {
           }
         }) /
         1000.0;
-    final asonDeSecs = _measureMs(() {
+    final asunDeSecs = _measureMs(() {
           for (int i = 0; i < iterations; i++) {
-            decodeListWith(asonText, User.fromFields);
+            decodeListWith(asunText, User.fromFields);
           }
         }) /
         1000.0;
@@ -1192,14 +1192,14 @@ void main() {
     print(
         '    JSON: ${(totalRecords / jsonSerSecs).toStringAsFixed(0)} records/s');
     print(
-        '    ASON: ${(totalRecords / asonSerSecs).toStringAsFixed(0)} records/s');
-    print('    Speed: ${(jsonSerSecs / asonSerSecs).toStringAsFixed(2)}x');
+        '    ASUN: ${(totalRecords / asunSerSecs).toStringAsFixed(0)} records/s');
+    print('    Speed: ${(jsonSerSecs / asunSerSecs).toStringAsFixed(2)}x');
     print('  Deserialize throughput:');
     print(
         '    JSON: ${(totalRecords / jsonDeSecs).toStringAsFixed(0)} records/s');
     print(
-        '    ASON: ${(totalRecords / asonDeSecs).toStringAsFixed(0)} records/s');
-    print('    Speed: ${(jsonDeSecs / asonDeSecs).toStringAsFixed(2)}x');
+        '    ASUN: ${(totalRecords / asunDeSecs).toStringAsFixed(0)} records/s');
+    print('    Speed: ${(jsonDeSecs / asunDeSecs).toStringAsFixed(2)}x');
   }
 
   print('');
