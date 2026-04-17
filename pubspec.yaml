@@ -3,9 +3,9 @@ description: >-
   High-performance ASUN (Array-Schema Unified Notation) encoder/decoder for Dart.
   Zero-copy binary, schema-driven text format with extreme performance.
 version: 1.0.0
-repository: https://github.com/asun-lab/asun-dart
-homepage: https://github.com/asun-lab/asun-dart
-issue_tracker: https://github.com/asun-lab/asun-dart/issues
+repository: https://github.com/asunLab/asun-dart
+homepage: https://github.com/asunLab/asun-dart
+issue_tracker: https://github.com/asunLab/asun-dart/issues
 topics:
   - serialization
   - schema

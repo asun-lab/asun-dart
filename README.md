@@ -3,9 +3,9 @@
 [![Pub Version](https://img.shields.io/pub/v/asun.svg)](https://pub.dev/packages/asun)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A high-performance [ASUN](https://github.com/asun-lab/asun) (Array-Schema Unified Notation) encoder/decoder for Dart — a token-efficient, schema-driven data format designed for LLM interactions and large-scale data transmission.
+A high-performance [ASUN](https://github.com/asunLab/asun) (Array-Schema Unified Notation) encoder/decoder for Dart — a token-efficient, schema-driven data format designed for LLM interactions and large-scale data transmission.
 
-[中文文档](README_CN.md)
+[中文文档](https://github.com/asunLab/asun-dart/blob/main/README_CN.md)
 
 ## What is ASUN?
 
@@ -100,7 +100,9 @@ final s = encode(users);
 
 // Schema binding with scalar hints
 final s2 = encodeTyped(users);
-// Output: [{id@int,name@str,active@bool}]:(1,Alice,true),(2,Bob,false)
+// Output: [{id,name,active}]:
+    (1,Alice,true),
+    (2,Bob,false)
 
 // Deserialize — accepts both forms
 final users2 = decodeListWith(s, User.fromFields);
@@ -189,7 +191,7 @@ For scalar fields, `@int`, `@str`, `@float`, and `@bool` are optional hints. For
 
 ### Multiline Format
 
-```text
+```asun
 [{id@int, name@str, active@bool}]:
   (1, Alice, true),
   (2, Bob, false),
@@ -265,7 +267,7 @@ dart run example/bench.dart
 
 ## ASUN Format Specification
 
-See the full [ASUN Spec](https://github.com/asun-lab/asun/blob/main/docs/ASUN_SPEC.md) for syntax rules, BNF grammar, escape rules, type system, and LLM integration best practices.
+See the full [ASUN Spec](https://github.com/asunLab/asun/blob/main/docs/ASUN_SPEC.md) for syntax rules, BNF grammar, escape rules, type system, and LLM integration best practices.
 
 ### Syntax Quick Reference
 

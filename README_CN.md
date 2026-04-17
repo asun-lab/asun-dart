@@ -3,9 +3,9 @@
 [![Pub Version](https://img.shields.io/pub/v/asun.svg)](https://pub.dev/packages/asun)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-高性能 [ASUN](https://github.com/asun-lab/asun)（Array-Schema Unified Notation）Dart 编解码库 —— 一种面向 LLM 交互和大规模数据传输的高效序列化格式。
+高性能 [ASUN](https://github.com/asunLab/asun)（Array-Schema Unified Notation）Dart 编解码库 —— 一种面向 LLM 交互和大规模数据传输的高效序列化格式。
 
-[English](README.md)
+[English](https://github.com/asunLab/asun-dart/blob/main/README.md)
 
 ## 什么是 ASUN？
 
@@ -100,7 +100,9 @@ final s = encode(users);
 
 // 带基本类型提示的 Schema
 final s2 = encodeTyped(users);
-// 输出: [{id@int,name@str,active@bool}]:(1,Alice,true),(2,Bob,false)
+// 输出: [{id,name,active}]:
+    (1,Alice,true),
+    (2,Bob,false)
 
 // 反序列化 —— 两种格式均可
 final users2 = decodeListWith(s, User.fromFields);
@@ -191,7 +193,7 @@ class Employee implements AsunSchema {
 
 ### 多行格式
 
-```text
+```asun
 [{id@int, name@str, active@bool}]:
   (1, Alice, true),
   (2, Bob, false),
@@ -267,7 +269,7 @@ dart run example/bench.dart
 
 ## ASUN 格式规范
 
-完整的 [ASUN 规范](https://github.com/asun-lab/asun/blob/main/docs/ASUN_SPEC_CN.md) 包含语法规则、BNF 文法、转义规则、类型系统及 LLM 集成最佳实践。
+完整的 [ASUN 规范](https://github.com/asunLab/asun/blob/main/docs/ASUN_SPEC_CN.md) 包含语法规则、BNF 文法、转义规则、类型系统及 LLM 集成最佳实践。
 
 ### 语法速查表
 
