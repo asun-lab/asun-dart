@@ -22,7 +22,5 @@ class AsunError implements Exception {
   static const unclosedString = AsunError('unclosed string');
   static const unclosedComment = AsunError('unclosed comment');
   static const invalidUnicodeEscape = AsunError('invalid unicode escape');
-  static const unsupportedMap = AsunError(
-    'map syntax is not supported; use entry-list arrays such as attrs@[{key@str,value@int}]',
-  );
+  static const unsupportedMap = AsunError('map syntax is not supported');
 }

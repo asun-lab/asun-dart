@@ -362,9 +362,9 @@ void main() {
       expect(m['id'], 1);
     });
 
-    test('legacy map syntax rejected', () {
+    test('invalid schema type rejected', () {
       expect(
-        () => decode('{attrs}:(<age:30>)'),
+        () => decode('{attrs@dict}:(value)'),
         throwsA(isA<AsunError>()),
       );
     });
@@ -478,7 +478,7 @@ void main() {
   });
 
   group('Binary', () {
-    test('legacy map field rejected', () {
+    test('map field rejected', () {
       expect(
         () => encode(LegacyMapHolder({'age': 30})),
         throwsA(isA<AsunError>()),
